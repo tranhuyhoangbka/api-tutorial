@@ -27,6 +27,10 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
+
+# authentication
+gem "devise"
+
 # api support
 gem "active_model_serializers"
 gem "sabisu_rails"
