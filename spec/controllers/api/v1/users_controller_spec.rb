@@ -60,6 +60,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
     context "when is successfully updated" do
       before do
         @user = FactoryGirl.create :user
+        api_authorization_header @user.auth_token
         patch :update, {id: @user.id, user: {email: "newmail@example.com"}}, format: :json
       end
       it "renders the json representation for the updated user" do
@@ -72,6 +73,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
     context "renders an errors json" do
       before do
         @user = FactoryGirl.create :user
+        api_authorization_header @user.auth_token
         patch :update, {id: @user.id, user: {email: "babemail.com"}}, format: :json
       end
       let(:user_response){JSON.parse response.body, symbolize_names: true}
@@ -88,6 +90,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
   describe "DELETE #destroy" do
     before do
       @user = FactoryGirl.create :user
+      api_authorization_header @user.auth_token
       delete :destroy, {id: @user.id}, format: :json
     end
     it {expect(response).to have_http_status(204)}
