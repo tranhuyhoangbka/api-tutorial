@@ -9,8 +9,8 @@ RSpec.describe Api::V1::UsersController, type: :controller do
       user2 = FactoryGirl.create :user
       get :index, format: :json
     end
-    let(:users){User.all.map(&:as_json)}
-    subject{JSON.parse response.body}
+    let(:users){User.all.select(:id, :email, :auth_token).map(&:as_json)}
+    subject{JSON.parse(response.body)["users"]}
     it {is_expected.to match_array users}
   end
 
@@ -20,7 +20,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
       get :show, id: @user.id, format: :json
     end
     it "returns the information about a reporter on a hash" do
-      user_response = JSON.parse(response.body, symbolize_names: true)
+      user_response = JSON.parse(response.body, symbolize_names: true)[:user]
       expect(user_response[:email]).to eql @user.email
     end
     it {expect(response).to have_http_status 200}
@@ -34,7 +34,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
       end
 
       it "renders the json representation for for the user record just created" do
-        user_response = JSON.parse response.body, symbolize_names: true
+        user_response = JSON.parse(response.body, symbolize_names: true)[:user]
         expect(user_response[:email]).to eq @user_attributes[:email]
       end
       it {expect(response).to have_http_status 201}
@@ -64,7 +64,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
         patch :update, {id: @user.id, user: {email: "newmail@example.com"}}, format: :json
       end
       it "renders the json representation for the updated user" do
-        user_response = JSON.parse response.body, symbolize_names: true
+        user_response = JSON.parse(response.body, symbolize_names: true)[:user]
         expect(user_response[:email]).to eq "newmail@example.com"
       end
       it {expect(response).to have_http_status 200}
