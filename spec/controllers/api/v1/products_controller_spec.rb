@@ -22,24 +22,39 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
   end
 
   describe "GET #index" do
-    before do
-      3.times{FactoryGirl.create :product}
-      get :index, format: :json
+    context "when is not receiving any product_ids parameter" do
+      before do
+        3.times{FactoryGirl.create :product}
+        get :index, format: :json
+      end
+
+      let(:products_response){JSON.parse(response.body, symbolize_names: true)[:products]}
+
+      it "return json represent for 3 products" do
+        expect(products_response.count).to eq 3
+      end
+
+      it "return the user object into each product" do
+        products_response.each do |product_response|
+          expect(product_response[:user]).to be_present
+        end
+      end
     end
 
-    let(:products_response){JSON.parse(response.body, symbolize_names: true)[:products]}
+    context "when product_ids parameter is sent" do
+      before do
+        @user = FactoryGirl.create :user
+        3.times{FactoryGirl.create :product, user: @user}
+        2.times{FactoryGirl.create :product}
+        get :index, product_ids: @user.product_ids, format: :json
+      end
 
-    it "return json represent for 3 products" do
-      expect(products_response.count).to eq 3
-    end
-
-    it "return the user object into each product" do
-      products_response.each do |product_response|
-        expect(product_response[:user]).to be_present
+      let(:products_response){JSON.parse(response.body, symbolize_names: true)[:products]}
+      it "return json objects represent for user's products" do
+        expect(products_response.map{|p| p[:id]}).to match_array @user.product_ids
       end
     end
   end
-
   describe "POST #create" do
     context "when creating product is successfully" do
       before do

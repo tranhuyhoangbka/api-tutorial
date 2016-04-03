@@ -10,7 +10,8 @@ RSpec.describe Api::V1::UsersController, type: :controller do
       get :index, format: :json
     end
     let(:users){User.all.select(:id, :email, :auth_token).map(&:as_json)}
-    subject{JSON.parse(response.body)["users"]}
+    let(:response_users){JSON.parse(response.body)["users"].map{|user| user.except("product_ids")}}
+    subject{response_users}
     it {is_expected.to match_array users}
   end
 
@@ -19,11 +20,18 @@ RSpec.describe Api::V1::UsersController, type: :controller do
       @user = FactoryGirl.create :user
       get :show, id: @user.id, format: :json
     end
+
+    let(:user_response){JSON.parse(response.body, symbolize_names: true)[:user]}
+
     it "returns the information about a reporter on a hash" do
-      user_response = JSON.parse(response.body, symbolize_names: true)[:user]
       expect(user_response[:email]).to eql @user.email
     end
+
     it {expect(response).to have_http_status 200}
+
+    it "has the product ids as an embeded object" do
+      expect(user_response[:product_ids]).to eq []
+    end
   end
 
   describe "POST #create" do

@@ -8,7 +8,12 @@ class Api::V1::ProductsController < ApplicationController
   end
 
   def index
-    respond_with Product.all.order(:title)
+    products = if params[:product_ids].present?
+      Product.find(params[:product_ids]).sort_by(&:title)
+    else
+      Product.all.order(:title)
+    end
+    respond_with products
   end
 
   def create
