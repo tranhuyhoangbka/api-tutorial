@@ -8,7 +8,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
     end
 
     let(:product_response){JSON.parse(response.body, symbolize_names: true)}
-    subject{product_response[:title]}
+    subject{product_response[:product][:title]}
 
     it "return json represent product" do
       is_expected.to eq @product.title
@@ -23,7 +23,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
       get :index, format: :json
     end
 
-    let(:products_response){JSON.parse(response.body, symbolize_names: true)}
+    let(:products_response){JSON.parse(response.body, symbolize_names: true)[:products]}
 
     it "return json represent for 3 products" do
       expect(products_response.count).to eq 3
@@ -39,7 +39,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
         post :create, {user_id: user.id, product: @product_attrs}, format: :json
       end
 
-      let(:product_response){JSON.parse(response.body, symbolize_names: true)}
+      let(:product_response){JSON.parse(response.body, symbolize_names: true)[:product]}
       subject{product_response[:title]}
 
       describe "render json presentation for created product" do
@@ -80,7 +80,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
         patch :update, {user_id: user.id, id: product.id, product: {title: "Wonderful Pan"}}, format: :json
       end
 
-      let(:product_request){JSON.parse(response.body, symbolize_names: true)}
+      let(:product_request){JSON.parse(response.body, symbolize_names: true)[:product]}
 
       it "has a new title" do
         expect(product_request[:title]).to eq "Wonderful Pan"
