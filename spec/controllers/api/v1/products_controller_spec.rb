@@ -8,28 +8,53 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
     end
 
     let(:product_response){JSON.parse(response.body, symbolize_names: true)}
-    subject{product_response[:title]}
+    subject{product_response[:product][:title]}
 
     it "return json represent product" do
       is_expected.to eq @product.title
+    end
+
+    it "has the user as embed object" do
+      expect(product_response[:product][:user][:email]).to eq @product.user.email
     end
 
     it{expect(response).to have_http_status 200}
   end
 
   describe "GET #index" do
-    before do
-      3.times{FactoryGirl.create :product}
-      get :index, format: :json
+    context "when is not receiving any product_ids parameter" do
+      before do
+        3.times{FactoryGirl.create :product}
+        get :index, format: :json
+      end
+
+      let(:products_response){JSON.parse(response.body, symbolize_names: true)[:products]}
+
+      it "return json represent for 3 products" do
+        expect(products_response.count).to eq 3
+      end
+
+      it "return the user object into each product" do
+        products_response.each do |product_response|
+          expect(product_response[:user]).to be_present
+        end
+      end
     end
 
-    let(:products_response){JSON.parse(response.body, symbolize_names: true)}
+    context "when product_ids parameter is sent" do
+      before do
+        @user = FactoryGirl.create :user
+        3.times{FactoryGirl.create :product, user: @user}
+        2.times{FactoryGirl.create :product}
+        get :index, product_ids: @user.product_ids, format: :json
+      end
 
-    it "return json represent for 3 products" do
-      expect(products_response.count).to eq 3
+      let(:products_response){JSON.parse(response.body, symbolize_names: true)[:products]}
+      it "return json objects represent for user's products" do
+        expect(products_response.map{|p| p[:id]}).to match_array @user.product_ids
+      end
     end
   end
-
   describe "POST #create" do
     context "when creating product is successfully" do
       before do
@@ -39,7 +64,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
         post :create, {user_id: user.id, product: @product_attrs}, format: :json
       end
 
-      let(:product_response){JSON.parse(response.body, symbolize_names: true)}
+      let(:product_response){JSON.parse(response.body, symbolize_names: true)[:product]}
       subject{product_response[:title]}
 
       describe "render json presentation for created product" do
@@ -80,7 +105,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
         patch :update, {user_id: user.id, id: product.id, product: {title: "Wonderful Pan"}}, format: :json
       end
 
-      let(:product_request){JSON.parse(response.body, symbolize_names: true)}
+      let(:product_request){JSON.parse(response.body, symbolize_names: true)[:product]}
 
       it "has a new title" do
         expect(product_request[:title]).to eq "Wonderful Pan"
