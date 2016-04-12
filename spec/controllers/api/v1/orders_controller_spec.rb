@@ -37,5 +37,19 @@ RSpec.describe Api::V1::OrdersController, type: :controller do
   end
 
   describe "POST #create" do
+    let(:current_user){FactoryGirl.create :user}
+    let(:product1){FactoryGirl.create :product}
+    let(:product2){FactoryGirl.create :product}
+    let(:order_attributes){{product_ids: [product1, product2]}}
+
+    before do
+      request.headers["Authorization"] = current_user.auth_token
+      post :create, order: order_attributes, user_id: current_user.id, format: :json
+    end
+
+    let(:order_response){JSON.parse(response.body, symbolize_names: true)}
+
+    it{expect(order_response[:order][:id]).to be_present}
+    it{expect(response).to have_http_status 201}
   end
 end
