@@ -91,6 +91,6 @@ RSpec.configure do |config|
   Kernel.srand config.seed
 =end
   config.after :each do
-    [User, Product].each &:destroy_all
+    [User, Product, Order].each &:destroy_all
   end
 end

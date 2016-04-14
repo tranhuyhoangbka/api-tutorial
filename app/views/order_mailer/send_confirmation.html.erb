@@ -1,0 +1,22 @@
+<h1>Market API Place</h1>
+<h2>Hi! <%= @user.email %></h2>
+<p>Today, at <%= @order.created_at.to_s(:long) %>, You ordered <%= pluralize @order.products.count, "product" %>:</p>
+<h3>Order: #<%= @order.id %></h3>
+<table style="border: 1px solid #ededed; min-with: 400px">
+  <tr>
+    <th>No</th>
+    <th>Name</th>
+    <th>Price</th>
+  </tr>
+  <% @order.products.each.with_index(1) do |product, i| %>
+    <tr>
+      <td><%= i %></td>
+      <td><%= product.title %></td>
+      <td><%= product.price %></td>
+    </tr>
+  <% end %>
+  <tr>
+    <td colspan="3">Total: <%= number_to_currency(@order.total) %></td>
+  </tr>
+</table>
+<h3>Thanks for your confirmation !</h3>

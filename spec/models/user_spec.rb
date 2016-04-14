@@ -8,6 +8,7 @@ RSpec.describe User, type: :model do
     it {should respond_to(:password)}
     it {should respond_to(:password_confirmation)}
     it {is_expected.to be_valid}
+    it{should have_many :orders}
   end
 
   describe "when email is not present" do
