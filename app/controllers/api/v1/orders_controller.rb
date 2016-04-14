@@ -14,6 +14,7 @@ class Api::V1::OrdersController < ApplicationController
   def create
     order = current_user.orders.build order_params
     if order.save
+      SendEmailConfirm.perform_async order.id
       render json: order, status: 201, location: [:api, current_user, order]
     else
       render json: order.errors, status: 422

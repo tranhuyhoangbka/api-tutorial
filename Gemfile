@@ -25,6 +25,8 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 gem "devise"
 # api support
 gem 'active_model_serializers', git: 'git@github.com:rails-api/active_model_serializers.git', branch: '0-8-stable'
+#background job
+gem "sidekiq"
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
@@ -44,4 +46,5 @@ group :test do
   gem "rspec-rails"
   gem "factory_girl_rails"
   gem 'shoulda-matchers'
+  gem "email_spec"
 end
