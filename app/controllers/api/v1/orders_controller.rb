@@ -12,8 +12,10 @@ class Api::V1::OrdersController < ApplicationController
   end
 
   def create
-    order = current_user.orders.build order_params
+    order = current_user.orders.build
+    order.build_placements_from_product_ids_and_quantity params[:order][:product_ids_and_quantity]
     if order.save
+      order.reload
       SendEmailConfirm.perform_async order.id
       render json: order, status: 201, location: [:api, current_user, order]
     else
@@ -23,6 +25,6 @@ class Api::V1::OrdersController < ApplicationController
 
   private
   def order_params
-    params.require(:order).permit product_ids: []
+    params.require(:order).permit product_ids_and_quantity: []
   end
 end
