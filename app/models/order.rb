@@ -15,7 +15,7 @@ class Order < ActiveRecord::Base
 
   def build_placements_from_product_ids_and_quantity product_ids_and_quantity
     product_ids_and_quantity.each do |id_and_quantity|
-      product_id, quantity = id_and_quantity
+      product_id, quantity = id_and_quantity.split ","
       self.placements.build product_id: product_id, quantity: quantity
     end
   end
